@@ -13,6 +13,8 @@ app = Application()
 
 
 def setup_app() -> Application:
+    app.logger = logging.getLogger()
+
     setup_store(app)
     setup_routes(app)
 
@@ -20,4 +22,4 @@ def setup_app() -> Application:
 
 
 if __name__ == "__main__":
-    web.run_app(setup_app())
+    web.run_app(setup_app(), host="localhost", port=8080)

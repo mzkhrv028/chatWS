@@ -1,7 +1,8 @@
-from aiohttp import WSMsgType, web
+from aiohttp import web
 
 from app import BASE_DIR
 from app.base.app import View
+from app.store.websocket.accessor import Event
 
 
 class IndexView(View):
@@ -13,4 +14,6 @@ class IndexView(View):
 
 class WebSocketView(View):
     async def get(self) -> web.WebSocketResponse:
-        await self.store.ws_accessor.open(self.request)
+        connection_id = await self.store.websocket.open(self.request)
+        await self.store.chat.handle(connection_id)
+        await self.store.websocket.close(connection_id)

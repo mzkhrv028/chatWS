@@ -1,11 +1,9 @@
 import typing as tp
+from logging import Logger
 
 from aiohttp import web
 
-
-if tp.TYPE_CHECKING:
-    from logging import Logger
-    from app.store import Store
+from app.store import Store
 
 
 class Application(web.Application):
