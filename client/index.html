@@ -1,11 +1,19 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
-  </head>
-  <body>
-    <h1>Hello, world!</h1>
-  </body>
+    <title>WebSocket Live Location</title>
+</head>
+<body>
+  <div class="container" id="chat-container">
+      <input id="message-field" type="text" placeholder="Your message here" name="message" value="">
+      <input id="send-button" class="dark" type="submit" value="Send">
+  </div>
+</body>
+<script type="application/javascript" src="static/js/global.js"></script>
+<script type="application/javascript" src="static/js/network.js"></script>
+<script type="application/javascript" src="static/js/app.js"></script>
+<script type="text/javascript">
+    path = "${CONNECT_PATH}";
+</script>
 </html>
