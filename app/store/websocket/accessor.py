@@ -1,9 +1,10 @@
+import asyncio
 import json
 import uuid
 import dataclasses
 import typing as tp
 
-from aiohttp import WSMessage, web
+from aiohttp import web
 
 from app.base.accessor import BaseAccessor
 
@@ -18,7 +19,21 @@ class Event:
 
     def __str__(self) -> str:
         return f"Event <{self.kind}> with payload = {self.payload}"
+    
 
+class WSConnectionManager:
+    def __init__(self, accessor: "WebSocketAccessor", request: "Request") -> None:
+        self._accessor = accessor
+        self._request = request
+        self.connection_id: str | None = None
+
+    async def __aenter__(self):
+        self.connection_id = await self._accessor.open(self._request)
+        return self.connection_id
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self._accessor.close(connection_id=self.connection_id)
+        
 
 class WebSocketAccessor(BaseAccessor):
     class Meta:
@@ -38,10 +53,25 @@ class WebSocketAccessor(BaseAccessor):
         return connection_id
     
     async def close(self, connection_id: str) -> None:
-        connection = self._connections.get(connection_id)
+        connection = self._connections.pop(connection_id, None)
+        
+        if connection is None:
+            return
+        
         self.logger.info(f"Closing {connection_id = }")
-        if connection and not connection.closed:
+
+        if not connection.closed:
             await connection.close()
+
+    async def notify_all(self, event: Event, except_of: list[str] | None = None):
+        ops = []
+        for connection_id in self._connections:
+            if except_of and connection_id in except_of:
+                continue
+            ops.append(self.push(connection_id=connection_id, event=event))
+        
+        await asyncio.gather(*ops)
+            
 
     async def push(self, connection_id: str, event: Event) -> None:
         data = json.dumps(dataclasses.asdict(event))
@@ -51,6 +81,11 @@ class WebSocketAccessor(BaseAccessor):
     async def _push(self, connection_id: str, data: str) -> None:
         await self._connections[connection_id].send_str(data)
 
-    async def read(self, connection_id: str) -> WSMessage:
+    async def read(self, connection_id: str) -> tp.AsyncIterator[Event]:
         async for message in self._connections[connection_id]:
-            yield message
+            message_data = message.json()
+
+            yield Event(
+                kind=message_data["kind"],
+                payload=message_data["payload"]
+            )

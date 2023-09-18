@@ -7,6 +7,9 @@ class User:
     id: str
     name: str
 
+    def __str__(self) -> str:
+        return f"User ({self.id}) {self.name}"
+
 
 class UsersAccessor(BaseAccessor):
     class Meta:
@@ -23,7 +26,7 @@ class UsersAccessor(BaseAccessor):
         return self._users[_id]
     
     async def remove(self, _id: str) -> None:
-        del self._users[_id]
+       self._users.pop(_id)
 
     async def get(self, _id: str) -> User:
         return self._users[_id]
