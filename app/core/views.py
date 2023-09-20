@@ -2,7 +2,7 @@ from aiohttp import web
 
 from app import BASE_DIR
 from app.base.app import View
-from app.store.websocket.accessor import Event, WSConnectionManager
+from app.store.websocket.accessor import WSContext
 
 
 class IndexView(View):
@@ -14,5 +14,5 @@ class IndexView(View):
 
 class WebSocketView(View):
     async def get(self) -> web.WebSocketResponse:
-        async with WSConnectionManager(accessor=self.store.websocket, request=self.request) as connection_id:
+        async with WSContext(accessor=self.store.websocket, request=self.request) as connection_id:
             await self.store.chat.handle(connection_id)

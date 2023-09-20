@@ -1,14 +1,5 @@
-import dataclasses
 from app.base.accessor import BaseAccessor
-
-
-@dataclasses.dataclass
-class User:
-    id: str
-    name: str
-
-    def __str__(self) -> str:
-        return f"User ({self.id}) {self.name}"
+from app.store.users.models import User
 
 
 class UsersAccessor(BaseAccessor):
@@ -25,12 +16,15 @@ class UsersAccessor(BaseAccessor):
         )
         return self._users[_id]
     
-    async def remove(self, _id: str) -> None:
-       self._users.pop(_id)
+    async def remove(self, _id: str) -> User:
+       return self._users.pop(_id)
 
     async def get(self, _id: str) -> User:
         return self._users[_id]
     
     async def update(self, _id: str, name: str) -> None:
         self._users[_id].name = name
+
+    async def list(self) -> list[User]:
+        return list(self._users.values())
     

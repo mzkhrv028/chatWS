@@ -7,21 +7,14 @@ import typing as tp
 from aiohttp import web
 
 from app.base.accessor import BaseAccessor
+from app.store.websocket.models import Event
+
 
 if tp.TYPE_CHECKING:
     from app.base.app import Request
 
 
-@dataclasses.dataclass
-class Event:
-    kind: str
-    payload: dict
-
-    def __str__(self) -> str:
-        return f"Event <{self.kind}> with payload = {self.payload}"
-    
-
-class WSConnectionManager:
+class WSContext:
     def __init__(self, accessor: "WebSocketAccessor", request: "Request") -> None:
         self._accessor = accessor
         self._request = request
@@ -63,14 +56,14 @@ class WebSocketAccessor(BaseAccessor):
         if not connection.closed:
             await connection.close()
 
-    async def notify_all(self, event: Event, except_of: list[str] | None = None):
-        ops = []
+    async def notify_all(self, event: Event, except_of: list[str] | None = None) -> None:
+        futures = []
         for connection_id in self._connections:
             if except_of and connection_id in except_of:
                 continue
-            ops.append(self.push(connection_id=connection_id, event=event))
+            futures.append(self.push(connection_id=connection_id, event=event))
         
-        await asyncio.gather(*ops)
+        await asyncio.gather(*futures)
             
 
     async def push(self, connection_id: str, event: Event) -> None:
