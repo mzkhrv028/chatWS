@@ -3,15 +3,21 @@ let connection;
 let path;
 let run = true;
 
+// chat
+let chatSendButton = document.getElementById("send-button");
+let chatContainer = document.getElementById("chat-container");
+let messageFieldElem = document.getElementById("message-field");
+let connectButton = document.getElementById("connect-button");
+
 // user
-let username;
 let id = "initial";
+let username = "undefined";
 
 // server
 const INITIAL = "initial";
 const ADD = "add";
 const SEND = "send";
-const REMOVE = "remove"
+const REMOVE = "remove";
 
 // client
 const CONNECT_EVENT = "connect";

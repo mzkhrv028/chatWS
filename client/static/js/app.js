@@ -1,14 +1,83 @@
-document.addEventListener("DOMContentLoaded", function() {
+connectButton.addEventListener("click", function() {
+
+    username = document.getElementById("username-field").value;
 
     connection = new Connection(onOpen, onMessage, onClose, onError);
 
-}, false);
+    enterListener("send-button", "chat-container");
+    addEventListener("beforeunload", beforeUnloadClose);
+
+    chatSendButton.addEventListener("click", messageListener);
+
+});
 
 
-onMessage = (msg) => {
-    let event = JSON.parse(msg.data);
-    const kind = event["kind"];
-    const payload = event["payload"];
+enterListener = (element, container) => {
+    window.document.getElementById(container).addEventListener("keyup", function(event) {
+        if (event.code === "Enter") {
+            event.preventDefault();
+            document.getElementById(element).click();
+        }
+    });
+}
+
+
+messageListener = () => {
+        connection.push(SEND, {
+        id: id,
+        name: username,
+        message: messageFieldElem.value,
+    });
+}
+
+
+ping = () => {
+    if (!run) return;
+    connection.push(PING_EVENT, {
+        id: id,
+    });
+}
+
+
+onFullyConnected = (payload) => {
+    id = payload["id"];
+    connection.push(CONNECT_EVENT, {
+        id: id,
+        name: username,
+    });
+
+    setInterval(ping, 1000);
+}
+
+
+onSendMessage = (payload) => {
+    const element = document.createElement("div");
+    const textMessage = document.createTextNode(`[${payload["time"]}] ${payload["name"]}: ${payload["message"]}`);
+    element.appendChild(textMessage);
+    chatContainer.appendChild(element);
+}
+
+
+onAddUser = (payload) => {
+    const element = document.createElement("div");
+    const textMessage = document.createTextNode(`User ${payload["name"]} joined the server.`);
+    element.appendChild(textMessage);
+    chatContainer.appendChild(element);
+}
+
+
+onRemoveUser = (payload) => {
+    const element = document.createElement("div");
+    const textMessage = document.createTextNode(`User ${payload["name"]} leave the server.`);
+    element.appendChild(textMessage);
+    chatContainer.appendChild(element);
+}
+
+
+onMessage = (event) => {
+    let msg = JSON.parse(event.data);
+    const kind = msg["kind"];
+    const payload = msg["payload"];
 
     console.log(`new event with kind ${kind} and payload ${JSON.stringify(payload)}`);
 
@@ -17,33 +86,17 @@ onMessage = (msg) => {
             onFullyConnected(payload);
             break;
         case ADD:
+            onAddUser(payload);
             break;
         case SEND:
+            onSendMessage(payload);
             break;
         case REMOVE:
+            onRemoveUser(payload);
             break;
         default:
             console.log(`unsupported event kind ${kind}, data ${payload}`);
     }
-}
-
-
-onFullyConnected = (payload) => {
-    id = payload["id"];
-    connection.push(CONNECT_EVENT, {
-        id: id,
-    });
-
-    setInterval(ping, 1000);
-}
-
-
-ping = () => {
-    if (!run) return;
-    console.log("ping");
-    connection.push(PING_EVENT, {
-        id: id,
-    });
 }
 
 
@@ -52,15 +105,17 @@ onOpen = () => {
 }
 
 
+beforeUnloadClose = (event) => {
+    event.preventDefault();
+    connection.push(DISCONNECT_EVENT, {
+        id: id,
+    });
+    run = false;
+}
+
+
 onClose = () => {
     console.log("Websocket connection closed");
-    connection.push(
-        DISCONNECT_EVENT,
-        {
-            id: id,
-        }
-    );
-    run = false;
 }
 
 
