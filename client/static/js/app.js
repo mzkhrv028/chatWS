@@ -2,6 +2,8 @@ connectButton.addEventListener("click", function() {
 
     username = document.getElementById("username-field").value;
 
+    if (!username) return;
+
     connection = new Connection(onOpen, onMessage, onClose, onError);
 
     enterListener("send-button", "chat-container");
@@ -23,7 +25,9 @@ enterListener = (element, container) => {
 
 
 messageListener = () => {
-        connection.push(SEND, {
+    const messageFieldElem = document.getElementById("message-field");
+    if (!messageFieldElem.value) return;
+    connection.push(SEND, {
         id: id,
         name: username,
         message: messageFieldElem.value,
@@ -46,7 +50,7 @@ onFullyConnected = (payload) => {
         name: username,
     });
 
-    setInterval(ping, 1000);
+    setInterval(ping, 15000);
 }
 
 

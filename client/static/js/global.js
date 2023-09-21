@@ -6,7 +6,6 @@ let run = true;
 // chat
 let chatSendButton = document.getElementById("send-button");
 let chatContainer = document.getElementById("chat-container");
-let messageFieldElem = document.getElementById("message-field");
 let connectButton = document.getElementById("connect-button");
 
 // user

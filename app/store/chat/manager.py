@@ -27,6 +27,8 @@ class ChatManager(BaseManager):
         await self._on_connect(connection_id=connection_id)
 
         async for event in self.app.store.websocket.read(connection_id):
+            self.logger.info(f"Handling {event} to {connection_id = }")
+
             match event.kind:
                 case ChatClientEventKind.CONNECT:
                     await self._handle_connect(
@@ -47,8 +49,19 @@ class ChatManager(BaseManager):
                 case _:
                     raise NotImplementedError
                 
+    async def _on_connect(self, connection_id: str) -> None:
+        users = await self.app.store.users.list()
+        await self.app.store.websocket.push(connection_id=connection_id, event=Event(
+                kind=ChatServerEventKind.INITIAL,
+                payload={
+                    "id": connection_id,
+                    "users": [dataclasses.asdict(user) for user in users],
+                }
+            )
+        )
+                
     async def _handle_connect(self, connection_id: str, payload: dict[str, str]) -> None:
-        user = await self.app.store.users.create(connection_id, payload.get("name"))
+        user = await self.app.store.users.create(connection_id, payload["name"])
         self.logger.info(f"{user} connected")
         await self.app.store.websocket.notify_all(
             event=Event(
@@ -61,7 +74,7 @@ class ChatManager(BaseManager):
             except_of=[connection_id],
         )
 
-    async def _handle_disconnect(self, connection_id: str):
+    async def _handle_disconnect(self, connection_id: str) -> None:
         user = await self.app.store.users.remove(connection_id)
         self.logger.info(f"User with id {connection_id} removed")
         await self.app.store.websocket.notify_all(
@@ -76,7 +89,6 @@ class ChatManager(BaseManager):
         )
 
     async def _handle_message(self, connection_id: str, payload: dict[str, str]) -> None:
-        self.logger.info(f"Message {payload['message']} sent from {connection_id}")
         await self.app.store.websocket.notify_all(
             event=Event(
                 kind=ChatServerEventKind.SEND,
@@ -87,15 +99,4 @@ class ChatManager(BaseManager):
                     "time": f"{datetime.now():%H:%M:%S}",
                 },
             ),
-        )
-
-    async def _on_connect(self, connection_id: str) -> None:
-        users = await self.app.store.users.list()
-        await self.app.store.websocket.push(connection_id=connection_id, event=Event(
-                kind=ChatServerEventKind.INITIAL,
-                payload={
-                    "id": connection_id,
-                    "users": [dataclasses.asdict(user) for user in users],
-                }
-            )
         )
