@@ -1,23 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
-    <title>WebSocket Live Location</title>
+    <title>WebSocket Chat</title>
+    <link rel="stylesheet" href="static/css/chat.css">
 </head>
+
 <body>
-    <div class="container" id="username-container">
-        <input id="username-field" type="text" placeholder="Your username here" name="username" value="">
-        <input id="connect-button" class="dark" type="submit" value="Connect">
-    </div>
-    <div class="container" id="chat-container">
-        <input id="message-field" type="text" placeholder="Your message here" name="message" value="">
-        <input id="send-button" class="dark" type="submit" value="Send">
-    </div>
+    <section class="msger">
+        <header class="msger-header">
+            <div class="msger-header-title">
+                <i class="fas fa-comment-alt"></i> WebSocket Chat
+            </div>
+            <div class="msger-header-options">
+                <span><i class="fas fa-cog"></i></span>
+            </div>
+        </header>
+
+        <main class="msger-chat"></main>
+
+        <form class="msger-inputarea">
+            <input type="text" class="msger-input" placeholder="Enter your message...">
+            <button type="submit" class="msger-send-btn">Send</button>
+        </form>
+    </section>
 </body>
+<script type="application/javascript" src="static/js/utils.js"></script>
 <script type="application/javascript" src="static/js/global.js"></script>
 <script type="application/javascript" src="static/js/network.js"></script>
 <script type="application/javascript" src="static/js/app.js"></script>
 <script type="text/javascript">
     path = "${CONNECT_PATH}";
 </script>
+
 </html>

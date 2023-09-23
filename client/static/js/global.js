@@ -4,9 +4,10 @@ let path;
 let run = true;
 
 // chat
-let chatSendButton = document.getElementById("send-button");
-let chatContainer = document.getElementById("chat-container");
-let connectButton = document.getElementById("connect-button");
+const msgerForm = get(".msger-inputarea");
+const msgerInput = get(".msger-input");
+const msgerChat = get(".msger-chat");
+const msgerSentBtn = get(".msger-send-btn")
 
 // user
 let id = "initial";

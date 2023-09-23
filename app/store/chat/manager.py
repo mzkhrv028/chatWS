@@ -99,4 +99,5 @@ class ChatManager(BaseManager):
                     "time": f"{datetime.now():%H:%M:%S}",
                 },
             ),
+            except_of=[connection_id],
         )
