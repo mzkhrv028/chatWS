@@ -22,4 +22,4 @@ def setup_app() -> Application:
 
 
 if __name__ == "__main__":
-    web.run_app(setup_app(), host="localhost", port=8080)
+    web.run_app(setup_app())
