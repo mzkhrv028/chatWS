@@ -1,8 +1,18 @@
-addEventListener("DOMContentLoaded", function () {
+connectForm.addEventListener("submit", event => {
+    event.preventDefault();
+
+    username = connectInput.value;
+    if (!username) {
+        connectBtn.disabled = false;
+        return;
+    } else {
+        connectBtn.disabled = true;
+    };
+
     connection = new Connection(onOpen, onMessage, onClose, onError);
 
     addEventListener("beforeunload", beforeUnloadClose);
-    enterListener(msgerSentBtn, msgerInput)
+    enterListener(msgerSentBtn, msgerInput);
 
 }, false);
 
@@ -23,7 +33,7 @@ msgerForm.addEventListener("submit", event => {
     const msgText = msgerInput.value;
     if (!msgText) return;
 
-    appendMessage(username, "", "right", msgText);
+    appendMessage(username, "right", msgText);
 
     connection.push(SEND, {
         id: id,
@@ -35,10 +45,9 @@ msgerForm.addEventListener("submit", event => {
 });
 
 
-appendMessage = (name, img, side, text) => {
+appendMessage = (name, side, text) => {
     const msgHTML = `
       <div class="msg ${side}-msg">
-        <div class="msg-img" style="background-image: url(${img})"></div>
   
         <div class="msg-bubble">
           <div class="msg-info">
@@ -57,7 +66,7 @@ appendMessage = (name, img, side, text) => {
 
 
 sendMessage = (payload) => {
-    appendMessage(payload["name"], "", "left", payload["message"])
+    appendMessage(payload["name"], "left", payload["message"])
 }
 
 

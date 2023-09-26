@@ -7,9 +7,13 @@ let run = true;
 const msgerForm = get(".msger-inputarea");
 const msgerInput = get(".msger-input");
 const msgerChat = get(".msger-chat");
-const msgerSentBtn = get(".msger-send-btn")
+const msgerSentBtn = get(".msger-send-btn");
 
 // user
+const connectForm = get(".connect-inputarea");
+const connectInput = get(".connect-input");
+const connectBtn = get(".connect-send-btn");
+
 let id = "initial";
 let username = "undefined";
 
