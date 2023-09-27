@@ -11,9 +11,11 @@ class ChatView(View):
             path=BASE_DIR / "client" / "static" / "templates" / "chat.html",
             headers={"Content-Type": "text/html"},
         )
-    
+
 
 class WebSocketView(View):
-    async def get(self) -> web.WebSocketResponse:
-        async with WSContext(accessor=self.store.websocket, request=self.request) as connection_id:
+    async def get(self) -> None:
+        async with WSContext(
+            accessor=self.store.websocket, request=self.request
+        ) as connection_id:
             await self.store.chat.handle(connection_id)

@@ -1,14 +1,13 @@
 import asyncio
-import json
-import uuid
 import dataclasses
+import json
 import typing as tp
+import uuid
 
 from aiohttp import WSMsgType, web
 
 from app.base.accessor import BaseAccessor
 from app.store.websocket.models import Event, WebSocketSession
-
 
 if tp.TYPE_CHECKING:
     from app.base.app import Request
@@ -26,7 +25,7 @@ class WSContext:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._accessor.close(connection_id=self.connection_id)
-        
+
 
 class WebSocketAccessor(BaseAccessor):
     class Meta:
@@ -35,7 +34,7 @@ class WebSocketAccessor(BaseAccessor):
     CONNECTION_TIMEOUT_SECONDS = 20
 
     def _post_init_(self) -> None:
-        self._connections: dict[str, WebSocketSession]= {}
+        self._connections: dict[str, WebSocketSession] = {}
 
     def _create_timeout(self, connection_id: str) -> asyncio.Task:
         def _done_callback(task: asyncio.Task) -> None:
@@ -51,7 +50,7 @@ class WebSocketAccessor(BaseAccessor):
         task.add_done_callback(_done_callback)
 
         return task
-    
+
     def _refresh_timeout(self, connection_id: str) -> None:
         self._connections[connection_id].timeout_task.cancel()
         self._connections[connection_id].timeout_task = self._create_timeout(connection_id)
@@ -72,13 +71,13 @@ class WebSocketAccessor(BaseAccessor):
         self.logger.info(f"Handling new connection {connection_id = }.")
 
         return connection_id
-    
+
     async def close(self, connection_id: str) -> None:
         connection = self._connections.pop(connection_id, None)
-        
+
         if connection is None:
             return
-        
+
         self.logger.info(f"Closing {connection_id = }")
 
         if not connection.client.closed:
@@ -86,8 +85,8 @@ class WebSocketAccessor(BaseAccessor):
 
     async def notify_all(self, event: Event, except_of: list[str] = []) -> None:
         tasks = [
-            self.push(connection_id=connection_id, event=event) 
-            for connection_id in self._connections.keys() 
+            self.push(connection_id=connection_id, event=event)
+            for connection_id in self._connections.keys()
             if connection_id not in except_of
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -106,10 +105,6 @@ class WebSocketAccessor(BaseAccessor):
             self._refresh_timeout(connection_id)
 
             if message.type == WSMsgType.TEXT:
-
                 message_data = message.json()
 
-                yield Event(
-                    kind=message_data["kind"],
-                    payload=message_data["payload"]
-                )
+                yield Event(kind=message_data["kind"], payload=message_data["payload"])

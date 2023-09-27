@@ -1,6 +1,5 @@
 import typing as tp
 
-
 if tp.TYPE_CHECKING:
     from app.base.app import Application
 
@@ -16,7 +15,7 @@ class BaseAccessor:
 
     def _post_init_(self) -> None:
         return None
-    
+
 
 class BaseManager(BaseAccessor):
     class Meta:

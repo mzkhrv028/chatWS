@@ -15,16 +15,15 @@ class UsersAccessor(BaseAccessor):
             name=name,
         )
         return self._users[_id]
-    
+
     async def remove(self, _id: str) -> User:
-       return self._users.pop(_id)
+        return self._users.pop(_id)
 
     async def get(self, _id: str) -> User:
         return self._users[_id]
-    
+
     async def update(self, _id: str, name: str) -> None:
         self._users[_id].name = name
 
     async def list(self) -> list[User]:
         return list(self._users.values())
-    

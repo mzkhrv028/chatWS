@@ -11,7 +11,7 @@ class Event:
 
     def __str__(self) -> str:
         return f"Event <{self.kind}> with payload = {self.payload}"
-    
+
 
 @dataclass
 class WebSocketSession:

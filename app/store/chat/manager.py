@@ -43,23 +43,23 @@ class ChatManager(BaseManager):
                         payload=event.payload,
                     )
                 case ChatClientEventKind.DISCONNECT:
-                    await self._handle_disconnect(
-                        connection_id=connection_id
-                    )
+                    await self._handle_disconnect(connection_id=connection_id)
                 case _:
                     raise NotImplementedError
-                
+
     async def _on_connect(self, connection_id: str) -> None:
         users = await self.app.store.users.list()
-        await self.app.store.websocket.push(connection_id=connection_id, event=Event(
+        await self.app.store.websocket.push(
+            connection_id=connection_id,
+            event=Event(
                 kind=ChatServerEventKind.INITIAL,
                 payload={
                     "id": connection_id,
                     "users": [dataclasses.asdict(user) for user in users],
-                }
-            )
+                },
+            ),
         )
-                
+
     async def _handle_connect(self, connection_id: str, payload: dict[str, str]) -> None:
         user = await self.app.store.users.create(connection_id, payload["name"])
         self.logger.info(f"{user} connected")
@@ -80,10 +80,7 @@ class ChatManager(BaseManager):
         await self.app.store.websocket.notify_all(
             event=Event(
                 kind=ChatServerEventKind.REMOVE,
-                payload={
-                    "id": user.id,
-                    "name": user.name
-                },
+                payload={"id": user.id, "name": user.name},
             ),
             except_of=[connection_id],
         )

@@ -3,7 +3,6 @@ import typing as tp
 from app import BASE_DIR
 from app.core.views import ChatView, WebSocketView
 
-
 if tp.TYPE_CHECKING:
     from app.base.app import Application
 
